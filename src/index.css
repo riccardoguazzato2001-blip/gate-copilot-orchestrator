@@ -1,0 +1,479 @@
+@import "tailwindcss";
+
+/* Dark mode CLASS-BASED (non solo prefers-color-scheme): la classe `.dark` su
+   <html> attiva la variante `dark:` in tutte le utility Tailwind v4. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================================
+   Gate Co-Pilot v2 — DESIGN SYSTEM PREMIUM
+   Dark mode elegante (default) + light mode rifinita. Glassmorphism, gradient,
+   glow, micro-animazioni GPU-accelerated. Font Inter (UI) + JetBrains Mono (dati).
+
+   CONTRATTO PER I COMPONENTI (usare queste classi per coerenza):
+   ─ Superfici ───────────────────────────────────────────────────────────────
+     .gc-surface        card/pannello standard (glass in dark, bianca in light)
+     .gc-surface-strong superficie più opaca (drawer, chat, modali)
+     .gc-inset          riquadro interno tenue (per messaggi, righe)
+   ─ Effetti ──────────────────────────────────────────────────────────────────
+     .gc-glow-blue / -violet / -emerald / -amber / -rose   alone colorato
+     .gc-gradient-text  testo con gradient blu→viola
+     .gc-gradient-border bordo con gradient animato (wrapper, usa ::before)
+     .gc-ring-rotate    anello gradient rotante (gate attivo / loader)
+     .gc-grid-pattern   sfondo a griglia geometrica sottile
+     .gc-aurora         sfondo gradient animato (header)
+     .gc-hover-lift     hover: solleva + ombra
+   ─ Animazioni d'ingresso (abbinare a style={{animationDelay}} per stagger) ────
+     .gc-fade-in  .gc-fade-up  .gc-fade-right  .gc-pop-in  .gc-scale-in
+   ─ Animazioni continue ───────────────────────────────────────────────────────
+     .gc-pulse-glow (breathing)  .gc-flow (flusso lungo linea)  .gc-float
+     .gc-typing-dot (1|2|3)  .gc-spin-slow
+   ─ Dati ───────────────────────────────────────────────────────────────────────
+     font-mono (JetBrains Mono) + tabular-nums per numeri/KPI
+   ─ Controlli ──────────────────────────────────────────────────────────────────
+     .gc-range  slider premium con track gradient
+   ========================================================================== */
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Menlo",
+    "Consolas", monospace;
+
+  /* Brand (retro-compat con v1) */
+  --color-brand-50: #eef4ff;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+
+  /* Palette premium dark */
+  --color-gc-deep: #060911; /* sfondo più profondo */
+  --color-gc-night: #0a0e1a; /* sfondo primario */
+  --color-gc-panel: #111827; /* superfici elevate */
+  --color-gc-edge: #1e293b; /* bordi tenui */
+
+  /* Accenti */
+  --color-gc-accent: #3b82f6; /* blue-500 */
+  --color-gc-violet: #8b5cf6; /* violet-500 */
+
+  /* Gate status */
+  --color-gc-passed: #10b981; /* emerald-500 */
+  --color-gc-active: #3b82f6; /* blue-500 */
+}
+
+/* ============================================================================
+   Base layer — tipografia, sfondo, focus, scrollbar
+   ========================================================================== */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: #f1f5f9; /* slate-100 — light */
+  color: #0f172a; /* slate-900 */
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+html.dark body {
+  background-color: var(--color-gc-night);
+  color: #f1f5f9; /* slate-100 */
+}
+
+/* Focus visibile e coerente (accessibilità WCAG) */
+:where(button, a, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-gc-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+html.dark * {
+  scrollbar-color: #334155 transparent;
+}
+
+/* Rispetta chi preferisce meno movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================================
+   Sfondo applicazione — griglia geometrica + bagliori d'ambiente (dark)
+   ========================================================================== */
+.gc-app-bg {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+}
+.gc-grid-pattern::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+html.dark .gc-grid-pattern::before {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+}
+/* Bagliori d'ambiente (solo dark) */
+.gc-grid-pattern::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgba(59, 130, 246, 0.16), transparent 70%),
+    radial-gradient(50% 45% at 95% 10%, rgba(139, 92, 246, 0.14), transparent 70%);
+  transition: opacity 0.6s ease;
+}
+html.dark .gc-grid-pattern::after {
+  opacity: 1;
+}
+
+@layer components {
+  /* --- Superfici --------------------------------------------------------- */
+  .gc-surface {
+    background-color: #ffffff;
+    border: 1px solid rgb(226 232 240); /* slate-200 */
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 1px 3px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.4s ease;
+  }
+  .dark .gc-surface {
+    background-color: rgba(17, 24, 39, 0.7);
+    border-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .gc-surface-strong {
+    background-color: #ffffff;
+    border: 1px solid rgb(226 232 240);
+  }
+  .dark .gc-surface-strong {
+    background-color: rgba(13, 18, 30, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .gc-inset {
+    background-color: rgb(248 250 252); /* slate-50 */
+    border: 1px solid rgb(241 245 249);
+  }
+  .dark .gc-inset {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.07);
+  }
+
+  /* --- Hover lift -------------------------------------------------------- */
+  .gc-hover-lift:hover {
+    transform: translateY(-3px);
+    border-color: rgb(203 213 225); /* slate-300 */
+    box-shadow:
+      0 12px 28px -10px rgba(15, 23, 42, 0.18),
+      0 4px 10px -6px rgba(15, 23, 42, 0.12);
+  }
+  .dark .gc-hover-lift:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow:
+      0 0 0 1px rgba(59, 130, 246, 0.2),
+      0 18px 40px -16px rgba(0, 0, 0, 0.8),
+      0 0 24px -6px rgba(59, 130, 246, 0.25);
+  }
+
+  /* --- Testo gradient ---------------------------------------------------- */
+  .gc-gradient-text {
+    background: linear-gradient(120deg, #60a5fa 0%, #a78bfa 55%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* --- Aurora (header animato) ------------------------------------------ */
+  .gc-aurora {
+    position: relative;
+    overflow: hidden;
+  }
+  .gc-aurora::before {
+    content: "";
+    position: absolute;
+    inset: -60%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      rgba(37, 99, 235, 0.16),
+      rgba(139, 92, 246, 0.16),
+      rgba(14, 165, 233, 0.14),
+      rgba(37, 99, 235, 0.16)
+    );
+    filter: blur(40px);
+    animation: gc-spin 18s linear infinite;
+  }
+  .dark .gc-aurora::before {
+    background: conic-gradient(
+      from 0deg,
+      rgba(59, 130, 246, 0.28),
+      rgba(139, 92, 246, 0.26),
+      rgba(56, 189, 248, 0.22),
+      rgba(59, 130, 246, 0.28)
+    );
+  }
+
+  /* --- Bordo gradient (wrapper) ----------------------------------------- */
+  .gc-gradient-border {
+    position: relative;
+    border-radius: 1rem;
+  }
+  .gc-gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #38bdf8);
+    -webkit-mask: linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* ============================================================================
+   Glow utilities (alone colorato, leggibili in entrambi i temi)
+   ========================================================================== */
+.gc-glow-blue {
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25), 0 0 24px rgba(59, 130, 246, 0.32);
+}
+.gc-glow-violet {
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.25), 0 0 24px rgba(139, 92, 246, 0.32);
+}
+.gc-glow-emerald {
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25), 0 0 24px rgba(16, 185, 129, 0.32);
+}
+.gc-glow-amber {
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25), 0 0 22px rgba(245, 158, 11, 0.3);
+}
+.gc-glow-rose {
+  box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.3), 0 0 24px rgba(244, 63, 94, 0.34);
+}
+
+/* Anello gradient rotante (gate attivo / accenti) */
+.gc-ring-rotate {
+  position: relative;
+}
+.gc-ring-rotate::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #38bdf8, #3b82f6);
+  animation: gc-spin 3.5s linear infinite;
+  z-index: -1;
+}
+
+/* ============================================================================
+   Keyframes
+   ========================================================================== */
+@keyframes gc-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gc-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gc-fade-right {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gc-pop-in {
+  0% { opacity: 0; transform: scale(0.6); }
+  70% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes gc-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes gc-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes gc-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.0), 0 0 18px rgba(59,130,246,0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.0), 0 0 30px rgba(59,130,246,0.5); }
+}
+@keyframes gc-pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  70% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes gc-flow {
+  from { background-position: 0 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes gc-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes gc-shimmer {
+  0% { background-position: -800px 0; }
+  100% { background-position: 800px 0; }
+}
+@keyframes gc-typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+@keyframes gc-ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes gc-aurora-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================================================
+   Animation helper classes
+   ========================================================================== */
+.gc-fade-in { animation: gc-fade-in 0.3s ease-out both; }
+.gc-fade-up { animation: gc-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.gc-fade-right { animation: gc-fade-right 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.gc-pop-in { animation: gc-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.gc-scale-in { animation: gc-scale-in 0.4s ease-out both; }
+.gc-pulse-glow { animation: gc-pulse-glow 2.4s ease-in-out infinite; }
+.gc-float { animation: gc-float 4s ease-in-out infinite; }
+.gc-spin-slow { animation: gc-spin 8s linear infinite; }
+
+/* Flusso luminoso lungo una linea (timeline) */
+.gc-flow {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.9) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: gc-flow 2.2s linear infinite;
+}
+
+/* Onda concentrica (pulse) per nodi attivi/badge critici */
+.gc-pulse-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: gc-pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Puntini "typing" del chatbot */
+.gc-typing-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: gc-typing 1.2s infinite ease-in-out;
+}
+.gc-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.gc-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* Onda di ripple (cambio soglie) */
+.gc-ripple {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent 70%);
+  animation: gc-ripple 0.9s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Skeleton di caricamento (esteso, supporto dark)
+   ========================================================================== */
+.gc-skeleton {
+  background: linear-gradient(90deg, #e2e8f0 0%, #f1f5f9 40%, #e2e8f0 80%);
+  background-size: 800px 100%;
+  animation: gc-shimmer 1.4s infinite linear;
+  border-radius: 10px;
+}
+html.dark .gc-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(51, 65, 85, 0.6) 40%,
+    rgba(30, 41, 59, 0.6) 80%
+  );
+  background-size: 800px 100%;
+}
+
+/* ============================================================================
+   Slider premium (.gc-range) — track gradient + thumb con glow
+   ========================================================================== */
+.gc-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  outline: none;
+  cursor: pointer;
+}
+html.dark .gc-range {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4) inset;
+}
+.gc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 0 14px rgba(59, 130, 246, 0.5);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.gc-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.22), 0 0 18px rgba(59, 130, 246, 0.7);
+}
+.gc-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 0 14px rgba(59, 130, 246, 0.5);
+}
