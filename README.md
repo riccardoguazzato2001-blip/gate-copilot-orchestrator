@@ -1,5 +1,7 @@
 # Gate Co-Pilot — Dashboard di Gate Governance (Hackathon GEWISS)
 
+![Gate Co-Pilot dashboard](docs/screenshot.png)
+
 Dashboard web che dimostra un **agente AI orchestratore** per la governance dei
 decision gate di un'azienda manifatturiera (GEWISS). L'agente assiste il Project
 Manager: ingerisce i deliverable di un gate da una "cartella di rete", li verifica
